@@ -8,7 +8,7 @@ from torch import nn, optim
 from torchvision import datasets, transforms, models
 
 
-def create_dataloaders():
+def create_dataloaders(data_dir):
     train_and_valid_transforms = transforms.Compose([
         transforms.RandomRotation(30),
         transforms.Resize(255),
@@ -32,17 +32,15 @@ def create_dataloaders():
     }
     
     # create the data loaders
-    train_dir =  "train"
-    valid_dir =  "valid"
-    test_dir =  "test"
+    train_dir = data_dir + "/train"
+    valid_dir = data_dir + "/train"
+    test_dir = data_dir + "/test"
     
     dirs = {
         "train": train_dir, 
         "valid": valid_dir, 
         "test" : test_dir
     }
-    image_datasets = {x: datasets.ImageFolder(dirs[x], transform=data_transforms[x]) for x in ["train", "valid", "test"]}
-    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=64, shuffle=True) for x in ["train", "valid", "test"]}
     
     return image_datasets, dataloaders
 
@@ -94,7 +92,7 @@ def setup_nn(model, model_input, hidden_units, dropout=0.4):
             )
             previous_input = unit
         fields.append(
-            ("fc{}".format(len(hidden_units) + 1), nn.Linear(hidden_units[-1], 'xxx - this number will be determined by the count of unique labels in train.tsv'))
+            ("fc{}".format(len(hidden_units) + 1), nn.Linear(hidden_units[-1], 26))
         )
         fields.append(
             ("output", nn.LogSoftmax(dim=1))
@@ -254,14 +252,14 @@ def process_image(image):
     
     return npi.T
 
-def get_category_json(file_path):
+def unique_category_labels(file_path):
     labels_file = open(file_path, 'r')
-    cat_to_name = {}
+    labels = set()
 
     for line in labels_file:
-        cat_to_name.update((tuple(line),))
+        labels.add(line.split('\t')[1].lower()[:-1])
 
-    return cat_to_name
+    return labels
 
 def predict(image_path, model, topk, category_json_path, gpu=0):
     img_array = process_image(image_path)
