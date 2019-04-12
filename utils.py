@@ -41,6 +41,10 @@ def create_dataloaders(data_dir):
         "valid": valid_dir, 
         "test" : test_dir
     }
+
+    image_datasets = {x: datasets.ImageFolder(dirs[x], transform=data_transforms[x]) for x in ["train", "valid"]}
+    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=64, shuffle=True) for x in ["train", "valid"]}
+
     
     return image_datasets, dataloaders
 
@@ -163,6 +167,8 @@ def train_model(model, gpu, dataloaders, lr=0.01, epochs=7):
                     "Validation Loss: {:.3f}.. ".format(loss/len(dataloaders['valid'])),
                     "Validation Accuracy: {:.3f}".format(accuracy/len(dataloaders['valid']))
                 )
+
+            print("Iteration {} of epoch {}".format(steps, e))
 
             running_loss = 0
 
