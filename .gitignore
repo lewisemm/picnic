@@ -108,3 +108,7 @@ venv.bak/
 
 # Ignore saved model checkpoints
 *.pth
+
+# Ignore dataset
+picnic_data/
+picnic_data.tar
