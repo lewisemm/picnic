@@ -32,9 +32,9 @@ def create_dataloaders(data_dir):
     }
     
     # create the data loaders
-    train_dir = data_dir + "/train"
-    valid_dir = data_dir + "/train"
-    test_dir = data_dir + "/test"
+    train_dir = data_dir + "/train/"
+    valid_dir = data_dir + "/train/"
+    test_dir = data_dir + "/test/"
     
     dirs = {
         "train": train_dir, 
@@ -51,7 +51,7 @@ def create_dataloaders(data_dir):
 def get_supported_archs():
     return {
         "vgg16": (models.vgg16(pretrained=True), 25088),
-        # "alexnet": (models.alexnet(pretrained=True), 9216)
+        "alexnet": (models.alexnet(pretrained=True), 9216)
     }
         
 def setup_nn(model, model_input, hidden_units, dropout=0.4):
@@ -147,7 +147,7 @@ def train_model(model, gpu, dataloaders, lr=0.01, epochs=7):
     for e in range(epochs):
         running_loss = 0
         for images, labels in dataloaders["train"]:
-            steps += 0 
+            steps += 1
             images, labels = images.to(device), labels.to(device)
             
             optimizer.zero_grad()
@@ -168,7 +168,7 @@ def train_model(model, gpu, dataloaders, lr=0.01, epochs=7):
                     "Validation Accuracy: {:.3f}".format(accuracy/len(dataloaders['valid']))
                 )
 
-            print("Iteration {} of epoch {}".format(steps, e))
+            print("Iteration {} of epoch {}".format(steps, e+1))
 
             running_loss = 0
 
