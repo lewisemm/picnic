@@ -103,9 +103,6 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# Ignnore FloydHub stuff
-*floyd*
-
 # Ignore saved model checkpoints
 *.pth
 
