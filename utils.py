@@ -51,6 +51,7 @@ def create_dataloaders(data_dir):
 def get_supported_archs():
     return {
         "vgg16": (models.vgg16(pretrained=True), 25088),
+        "vgg13": (models.vgg13(pretrained=True), 25088),
         "alexnet": (models.alexnet(pretrained=True), 9216)
     }
         
@@ -267,7 +268,12 @@ def unique_category_labels(file_path):
 
     return labels
 
-def predict(image_path, model, topk, category_json_path, gpu=0):
+def get_label_to_folder_map():
+    with open("label_to_folder_map.json", 'r') as f:
+        label_to_folder_map = json.load(f)
+    return label_to_folder_map
+
+def predict(image_path, model, topk, cat_labels_path, gpu=0):
     img_array = process_image(image_path)
     processed_image = torch.from_numpy(img_array).type(torch.FloatTensor)
     processed_image = torch.unsqueeze(processed_image, 0)
@@ -291,10 +297,30 @@ def predict(image_path, model, topk, category_json_path, gpu=0):
     top_labels = top_labels.detach().numpy().tolist()[0]
     # convert labels to int so that we can access idx_to_class keys
     top_labels_idx = [int(label) for label in top_labels]
+    print("*" * 80)
+    print("top_labels_idx")
+    print(top_labels_idx)
+    print("*" * 80)
     
-    idx_to_class = {model.class_to_idx[k]: k  for k in model.class_to_idx}
+    idx_to_class = {model.class_to_idx[k]: int(k)  for k in model.class_to_idx}
+    print("*" * 80)
+    print("idx_to_class")
+    print(idx_to_class)
+    print("*" * 80)
 
-    cat_to_name = get_category_json(category_json_path)
+    name_to_cat = get_label_to_folder_map()
+
+    # keys in "name_to_cat" should be values in cat_to_name
+    # values in "name_to_cat" should be keys in cat_to_name
+    cat_to_name = {}
+    for key in name_to_cat:
+        cat_to_name[name_to_cat[key]] = key
+
+    print("*" * 80)
+    print("cat_to_name")
+    print(cat_to_name)
+    print("*" * 80)
+    
     
     top_idx_names = [cat_to_name[idx_to_class[lab]] for lab in top_labels_idx]
     
