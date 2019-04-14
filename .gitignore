@@ -110,5 +110,8 @@ venv.bak/
 *.pth
 
 # Ignore dataset
-picnic_data/
-picnic_data.tar
+picnic_data*
+
+# Ignore files that can be re-generated
+submission.tsv
+label_to_folder_map.json
