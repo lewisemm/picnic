@@ -34,7 +34,7 @@ def create_dataloaders(data_dir):
     # create the data loaders
     train_dir = data_dir + "/train/"
     valid_dir = data_dir + "/train/"
-    test_dir = data_dir + "/test/"
+    test_dir = data_dir
     
     dirs = {
         "train": train_dir, 
@@ -42,8 +42,8 @@ def create_dataloaders(data_dir):
         "test" : test_dir
     }
 
-    image_datasets = {x: datasets.ImageFolder(dirs[x], transform=data_transforms[x]) for x in ["train", "valid"]}
-    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=64, shuffle=True) for x in ["train", "valid"]}
+    image_datasets = {x: datasets.ImageFolder(dirs[x], transform=data_transforms[x]) for x in ["train", "valid", "test"]}
+    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=64, shuffle=True) for x in ["train", "valid", "test"]}
 
     
     return image_datasets, dataloaders
