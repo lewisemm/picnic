@@ -44,7 +44,6 @@ def create_dataloaders(data_dir):
 
     image_datasets = {x: datasets.ImageFolder(dirs[x], transform=data_transforms[x]) for x in ["train", "valid", "test"]}
     dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=64, shuffle=True) for x in ["train", "valid", "test"]}
-
     
     return image_datasets, dataloaders
 
@@ -62,11 +61,11 @@ def setup_nn(model, model_input, hidden_units, dropout=0.4):
     for param in model.parameters():
         param.requires_grad = False
 
-    flower_classifier = None
+    food_classifier = None
     dropout = nn.Dropout(p=dropout)
 
     if len(hidden_units) <= 2:
-        flower_classifier = nn.Sequential(
+        food_classifier = nn.Sequential(
             OrderedDict([
                 ("fc1", nn.Linear(model_input, hidden_units[0])),
                 ("relu1", nn.ReLU()),
@@ -103,10 +102,10 @@ def setup_nn(model, model_input, hidden_units, dropout=0.4):
             ("output", nn.LogSoftmax(dim=1))
         )
 
-        flower_classifier = nn.Sequential(OrderedDict(fields))
+        food_classifier = nn.Sequential(OrderedDict(fields))
     
     
-    model.classifier = flower_classifier
+    model.classifier = food_classifier
     return model
 
 def determine_device(processor=1):
@@ -175,30 +174,6 @@ def train_model(model, gpu, dataloaders, lr=0.01, epochs=7):
 
     print("Training Complete!")
     return model
-
-def test_network(model, criterion, test_dataloader):
-    device = determine_device()
-    model.to(device)
-    
-    test_loss = 0
-    accuracy = 0
-
-    with torch.no_grad():
-        for images, labels in test_dataloader:
-            images, labels = images.to(device), labels.to(device)
-
-            output = model.forward(images)
-
-            test_loss += criterion(output, labels).item()
-
-            probs = torch.exp(output)
-            equality = (labels.data == probs.max(dim=1)[1])
-            accuracy += equality.type(torch.FloatTensor).mean()
-
-            print("Testing Loss: {:.3f}.. ".format(test_loss/len(test_dataloader)),
-                    "Testing Accuracy: {:.3f}".format(accuracy/len(test_dataloader)))
-            
-    print("Testing Complete!")
 
 def save_checkpoint(model, image_datasets, hidden_units, file_path="checkpoint.pth"):
     model.class_to_idx = image_datasets['train'].class_to_idx
@@ -297,16 +272,8 @@ def predict(image_path, model, topk, gpu=0):
     top_labels = top_labels.detach().numpy().tolist()[0]
     # convert labels to int so that we can access idx_to_class keys
     top_labels_idx = [int(label) for label in top_labels]
-    print("*" * 80)
-    print("top_labels_idx")
-    print(top_labels_idx)
-    print("*" * 80)
     
     idx_to_class = {model.class_to_idx[k]: int(k)  for k in model.class_to_idx}
-    print("*" * 80)
-    print("idx_to_class")
-    print(idx_to_class)
-    print("*" * 80)
 
     name_to_cat = get_label_to_folder_map()
 
@@ -315,12 +282,6 @@ def predict(image_path, model, topk, gpu=0):
     cat_to_name = {}
     for key in name_to_cat:
         cat_to_name[name_to_cat[key]] = key
-
-    print("*" * 80)
-    print("cat_to_name")
-    print(cat_to_name)
-    print("*" * 80)
-    
     
     top_idx_names = [cat_to_name[idx_to_class[lab]] for lab in top_labels_idx]
     

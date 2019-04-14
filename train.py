@@ -24,7 +24,6 @@ parser.add_argument('--hidden_units', type=int, nargs='+', default=10000,
 parser.add_argument('--epochs', type=int, default=7,
     help="the number of epochs used while training the network")
 parser.add_argument('--gpu', type=int, default=1, help="Use a GPU to train the network")
-parser.add_argument('--test_nn', type=int, default=0, help="Test the network after training is complete")
 
 args = parser.parse_args()
 
@@ -38,7 +37,6 @@ if __name__ == "__main__":
     hidden_units = args.hidden_units
     epochs = args.epochs
     gpu = args.gpu
-    test_nn = args.test_nn
 
     print("These are the arguments supplied! :\n {}".format(args))
     
@@ -58,8 +56,3 @@ if __name__ == "__main__":
         # train and save the model to file
         trained_food_classifier = utils.train_model(food_classifier, gpu, dataloaders, lr=lr, epochs=epochs)
         utils.save_checkpoint(trained_food_classifier, image_datasets, hidden_units, checkpoint_path)
-
-        if test_nn:
-            model = utils.load_checkpoint(arch, checkpoint_path)
-            criterion = nn.NLLLoss()
-            utils.test_network(model, criterion, dataloaders['test'])

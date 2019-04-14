@@ -14,7 +14,7 @@ cat_labels_path = "picnic_data/train.tsv"
 
 parser.add_argument('image_path', type=str, default=default_image, help='the path to the image to be identified')
 parser.add_argument('--arch', type=str, default='vgg16', help='the CNN Model Architecture')
-parser.add_argument('--top_k', type=int, default=5, help='return the top k likely category names of a flower')
+parser.add_argument('--top_k', type=int, default=5, help='return the top k likely food categories')
 parser.add_argument('--gpu', type=int, default=0, help="Use a GPU to predict")
 parser.add_argument('--checkpoint_path', type=str, default='food_vgg16.pth',
     help='Save a checkpoint to a file with the specified name.')
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     model = utils.load_checkpoint(arch, checkpoint_path)
     model.eval()
     
-    probs, labels, flowers = utils.predict(image_path, model, top_k, gpu)
+    probs, labels, foods = utils.predict(image_path, model, top_k, gpu)
     
     stop_time = datetime.datetime.now()
     
