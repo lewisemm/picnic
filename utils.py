@@ -273,7 +273,7 @@ def get_label_to_folder_map():
         label_to_folder_map = json.load(f)
     return label_to_folder_map
 
-def predict(image_path, model, topk, cat_labels_path, gpu=0):
+def predict(image_path, model, topk, gpu=0):
     img_array = process_image(image_path)
     processed_image = torch.from_numpy(img_array).type(torch.FloatTensor)
     processed_image = torch.unsqueeze(processed_image, 0)
@@ -324,6 +324,6 @@ def predict(image_path, model, topk, cat_labels_path, gpu=0):
     
     top_idx_names = [cat_to_name[idx_to_class[lab]] for lab in top_labels_idx]
     
-    top_flowers = [cat_to_name[idx_to_class[lab]] for lab in top_labels]
+    top_categs = [cat_to_name[idx_to_class[lab]] for lab in top_labels]
     
-    return top_probs, top_idx_names, top_flowers
+    return top_probs, top_idx_names, top_categs
