@@ -112,3 +112,6 @@ picnic_data*
 # Ignore files that can be re-generated
 submission.tsv
 label_to_folder_map.json
+
+# Ignore .vscode customized settings
+.vscode/
