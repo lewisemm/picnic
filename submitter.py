@@ -7,8 +7,8 @@ from PIL import Image
 
 test_file = "picnic_data/test.tsv"
 dir_prefix = "picnic_data/test/"
-arch = "alexnet"
-checkpoint_path = "alexnet2.pth"
+arch = "vgg16"
+checkpoint_path = "vgg16.pth"
 
 opened = open(test_file, "r")
 opened.readline()

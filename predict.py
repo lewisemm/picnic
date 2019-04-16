@@ -16,8 +16,8 @@ parser.add_argument('image_path', type=str, default=default_image, help='the pat
 parser.add_argument('--arch', type=str, default='vgg16', help='the CNN Model Architecture')
 parser.add_argument('--top_k', type=int, default=5, help='return the top k likely food categories')
 parser.add_argument('--gpu', type=int, default=0, help="Use a GPU to predict")
-parser.add_argument('--checkpoint_path', type=str, default='food_vgg16.pth',
-    help='Save a checkpoint to a file with the specified name.')
+parser.add_argument('--checkpoint_path', type=str, default='vgg16.pth',
+    help='the name of the checkpoint file to use when making predictions.')
 
 
 args = parser.parse_args()

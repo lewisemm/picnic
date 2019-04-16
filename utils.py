@@ -50,8 +50,8 @@ def create_dataloaders(data_dir):
 def get_supported_archs():
     return {
         "vgg16": (models.vgg16(pretrained=True), 25088),
-        "vgg13": (models.vgg13(pretrained=True), 25088),
-        "alexnet": (models.alexnet(pretrained=True), 9216)
+        # "vgg13": (models.vgg13(pretrained=True), 25088),
+        # "alexnet": (models.alexnet(pretrained=True), 9216)
     }
         
 def setup_nn(model, model_input, hidden_units, dropout=0.4):
