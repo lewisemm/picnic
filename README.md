@@ -83,4 +83,23 @@ Predictions, like training, is also done via the command line. Available options
 
 ```bash
 python predict.py picnic_data/test/7263.jpeg --arch vgg16 --top_k 3 --gpu 1 --checkpoint_path vgg16.pth
+
+********************************************************************************
+bell peppers, zucchinis & eggplants: 75.478 %
+bananas, apples & pears: 17.594 %
+cucumber, tomatoes & avocados: 4.688 %
+********************************************************************************
+Running time: 8.06721 seconds
+********************************************************************************
 ```
+
+## Hackathon Submission
+The submission process requires that the filenames listed in `test.tsv` be predicted and the results stored in `.tsv` format.
+
+Running the following command will take care of the above requirement.
+
+```bash
+python submitter.py
+```
+
+This generates a `submission.tsv` file that contains the filenames and the corresponding classification of images in those files.
