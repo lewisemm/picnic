@@ -176,16 +176,68 @@ def train_model(model, gpu, dataloaders, lr=0.01, epochs=7):
     print("Training Complete!")
     return model
 
-def save_checkpoint(model, image_datasets, hidden_units, file_path="checkpoint.pth"):
+def resume_training(arch, checkpoint_filepath, additional_epochs, gpu, dataloaders):
+    model = load_checkpoint(arch, checkpoint_filepath)
+
+    device = determine_device(gpu)
+    model.to(device)
+
+    criterion = nn.NLLLoss()
+    optimizer = optim.Adam(model.classifier.parameters(), model.learning_rate)
+
+    print_every = 40
+    steps = 0
+
+    last_epoch = model.epochs + additional_epochs
+    epoch_range = range(model.epochs, last_epoch)
+
+    for e in epoch_range:
+        running_loss = 0
+        for images, labels in dataloaders["train"]:
+            steps += 1
+            images, labels = images.to(device), labels.to(device)
+
+            optimizer.zero_grad()
+
+            output = model.forward(images)
+            loss = criterion(output, labels)
+            loss.backward()
+            optimizer.step()
+
+            running_loss += loss.item()
+
+            if steps % print_every == 0:
+                loss, accuracy = validator(model, dataloaders['valid'], criterion, gpu)
+                print(
+                    "Epoch: {}/{}... ".format(e+1, epochs),
+                    "Training Loss: {:.4f}".format(running_loss/print_every),
+                    "Validation Loss: {:.3f}.. ".format(loss/len(dataloaders['valid'])),
+                    "Validation Accuracy: {:.3f}".format(accuracy/len(dataloaders['valid']))
+                )
+
+            print("Iteration {} of epoch {}".format(steps, e+1))
+
+            running_loss = 0
+
+    print("Training completed via 'resume_training' function!")
+    return model
+
+def save_checkpoint(model, image_datasets, hidden_units, file_path="checkpoint.pth", dropout, epochs, lr):
     model.class_to_idx = image_datasets['train'].class_to_idx
     model.hidden_units = hidden_units
+    model.dropout = dropout
+    model.epochs = epochs
+    model.learning_rate = lr
 
     model.cpu()
 
     checkpoint = {
         'state_dict': model.state_dict(),
         'class_to_idx': model.class_to_idx,
-        'hidden_units': model.hidden_units
+        'hidden_units': model.hidden_units,
+        'dropout': model.dropout,
+        'epochs': model.epochs,
+        'learning_rate': model.learning_rate,
     }
 
     torch.save(checkpoint, file_path)
@@ -202,8 +254,12 @@ def load_checkpoint(arch, file_path="checkpoint.pth"):
 
         checkpoint = torch.load(file_path)
         model.class_to_idx = checkpoint['class_to_idx']
+        model.hidden_units = checkpoint['hidden_units']
+        model.dropout = checkpoint['dropout']
+        model.epochs = checkpoint['epochs']
+        model.learning_rate = checkpoint['learning_rate']
 
-        model = setup_nn(model, model_input, checkpoint['hidden_units'])
+        model = setup_nn(model, model_input, checkpoint['hidden_units'], checkpoint['dropout'])
 
         model.load_state_dict(checkpoint['state_dict'])
     

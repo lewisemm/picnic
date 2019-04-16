@@ -17,8 +17,8 @@ parser.add_argument('--checkpoint_path', type=str, default='checkpoint.pth',
 parser.add_argument('--arch', type=str, default='vgg16', help='the Model Architecture')
 parser.add_argument('--learning_rate', type=float, default=0.01,
     help='the learning rate while training the network')
-parser.add_argument('--dropout', type=float, default=0.3,
-    help='the dropout rate while training the network')
+parser.add_argument('--dropout', type=float, nargs='+', default=0.3,
+    help='space separated dropout rates for each hidden unit')
 parser.add_argument('--hidden_units', type=int, nargs='+', default=10000,
     help="space separated integer values for each hidden unit", required=True)
 parser.add_argument('--epochs', type=int, default=7,
@@ -54,5 +54,8 @@ if __name__ == "__main__":
         food_classifier = utils.setup_nn(pretrained_model, model_input, hidden_units, dropout)
         
         # train and save the model to file
-        trained_food_classifier = utils.train_model(food_classifier, gpu, dataloaders, lr=lr, epochs=epochs)
-        utils.save_checkpoint(trained_food_classifier, image_datasets, hidden_units, checkpoint_path)
+        trained_food_classifier = utils.train_model(
+            food_classifier, gpu, dataloaders, lr=lr, epochs=epochs)
+        utils.save_checkpoint(
+            trained_food_classifier, image_datasets, hidden_units,
+            checkpoint_path, dropout, epochs, lr)
