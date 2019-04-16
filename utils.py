@@ -54,59 +54,60 @@ def get_supported_archs():
         # "alexnet": (models.alexnet(pretrained=True), 9216)
     }
         
-def setup_nn(model, model_input, hidden_units, dropout=0.4):
+def setup_nn(model, model_input, hidden_units, dropout):
     # maps the model string to the torchvision model and it's corresponding input
     # features at the classifier
 
-    for param in model.parameters():
-        param.requires_grad = False
+    if len(hidden_units) != len(dropout):
+        print("The number of hidden units should match the number of dropout rate values.")
+    else:
 
-    food_classifier = None
-    dropout = nn.Dropout(p=dropout)
+        for param in model.parameters():
+            param.requires_grad = False
 
-    if len(hidden_units) <= 2:
-        food_classifier = nn.Sequential(
-            OrderedDict([
+        food_classifier = None
+
+        if len(hidden_units) <= 2:
+            food_classifier = nn.Sequential(
+                OrderedDict([
+                    ("fc1", nn.Linear(model_input, hidden_units[0])),
+                    ("relu1", nn.ReLU()),
+                    ("dropout1", nn.Dropout(p=dropout[0])),
+                    ("fc2", nn.Linear(hidden_units[0], hidden_units[-1])),
+                    ("relu2", nn.ReLU()),
+                    ("dropout2", nn.Dropout(p=dropout[-1])),
+                    ("fc3", nn.Linear(hidden_units[-1], 102)),
+                    ("output", nn.LogSoftmax(dim=1))
+                ])
+            )
+        elif len(hidden_units) > 2:
+            fields = [
                 ("fc1", nn.Linear(model_input, hidden_units[0])),
                 ("relu1", nn.ReLU()),
-                ("dropout1", dropout),
-                ("fc2", nn.Linear(hidden_units[0], hidden_units[-1])),
-                ("relu2", nn.ReLU()),
-                ("dropout2", dropout),
-                ("fc3", nn.Linear(hidden_units[-1], 102)),
+                ("dropout1", nn.Dropout(p=dropout[0]))
+            ]
+            previous_input = hidden_units[0]
+            dropout = dropout[1:]
+            for index, unit in enumerate(hidden_units[1:]):
+                fields.append(
+                    ("fc{}".format(index + 2), nn.Linear(previous_input, unit))
+                )
+                fields.append(
+                    ("relu{}".format(index + 2), nn.ReLU())
+                )
+                fields.append(
+                    ("dropout{}".format(index + 2), nn.Dropout(p=dropout[index]))
+                )
+                previous_input = unit
+            fields.append(
+                ("fc{}".format(len(hidden_units) + 1), nn.Linear(hidden_units[-1], 26))
+            )
+            fields.append(
                 ("output", nn.LogSoftmax(dim=1))
-            ])
-        )
-    elif len(hidden_units) > 2:
-        fields = [
-            ("fc1", nn.Linear(model_input, hidden_units[0])),
-            ("relu1", nn.ReLU()),
-            ("dropout1", dropout)
-        ]
-        previous_input = hidden_units[0]
-        for index, unit in enumerate(hidden_units[1:]):
-            fields.append(
-                ("fc{}".format(index + 2), nn.Linear(previous_input, unit))
             )
-            fields.append(
-                ("relu{}".format(index + 2), nn.ReLU())
-            )
-            fields.append(
-                ("dropout{}".format(index + 2), dropout)
-            )
-            previous_input = unit
-        fields.append(
-            ("fc{}".format(len(hidden_units) + 1), nn.Linear(hidden_units[-1], 26))
-        )
-        fields.append(
-            ("output", nn.LogSoftmax(dim=1))
-        )
-
-        food_classifier = nn.Sequential(OrderedDict(fields))
-    
-    
-    model.classifier = food_classifier
-    return model
+            food_classifier = nn.Sequential(OrderedDict(fields))
+        model.classifier = food_classifier
+        return model
 
 def determine_device(processor=1):
     device = torch.device("cuda:0" if (torch.cuda.is_available() and processor == 1) else "cpu")
