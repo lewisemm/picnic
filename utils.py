@@ -51,7 +51,7 @@ def get_supported_archs():
     return {
         "vgg16": (models.vgg16(pretrained=True), 25088),
         # "vgg13": (models.vgg13(pretrained=True), 25088),
-        # "alexnet": (models.alexnet(pretrained=True), 9216)
+        "alexnet": (models.alexnet(pretrained=True), 9216)
     }
         
 def setup_nn(model, model_input, hidden_units, dropout):
@@ -59,7 +59,7 @@ def setup_nn(model, model_input, hidden_units, dropout):
     # features at the classifier
 
     if len(hidden_units) != len(dropout):
-        print("The number of hidden units should match the number of dropout rate values.")
+        raise Exception("The number of hidden units should match the number of dropout rate values.")
     else:
 
         for param in model.parameters():
@@ -209,7 +209,7 @@ def resume_training(arch, checkpoint_filepath, additional_epochs, gpu, dataloade
             if steps % print_every == 0:
                 loss, accuracy = validator(model, dataloaders['valid'], criterion, gpu)
                 print(
-                    "Epoch: {}/{}... ".format(e+1, epochs),
+                    "Epoch: {}/{}... ".format(e+1, epoch_range),
                     "Training Loss: {:.4f}".format(running_loss/print_every),
                     "Validation Loss: {:.3f}.. ".format(loss/len(dataloaders['valid'])),
                     "Validation Accuracy: {:.3f}".format(accuracy/len(dataloaders['valid']))
