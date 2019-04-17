@@ -58,4 +58,4 @@ if __name__ == "__main__":
             food_classifier, gpu, dataloaders, lr=lr, epochs=epochs)
         utils.save_checkpoint(
             trained_food_classifier, image_datasets, hidden_units,
-            checkpoint_path, dropout, epochs, lr)
+            dropout, epochs, lr, checkpoint_path)

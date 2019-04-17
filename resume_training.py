@@ -46,6 +46,6 @@ if __name__ == "__main__":
 
         total_epochs = model.epochs + additional_epochs
         utils.save_checkpoint(
-            model, image_datasets, model.hidden_units, checkpoint_path,
-            model.dropout, total_epochs, models.learning_rate)
+            model, image_datasets, model.hidden_units, model.dropout,
+            total_epochs, models.learning_rate, checkpoint_path)
         

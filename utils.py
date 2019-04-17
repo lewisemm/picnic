@@ -222,7 +222,7 @@ def resume_training(arch, checkpoint_filepath, additional_epochs, gpu, dataloade
     print("Training completed via 'resume_training' function!")
     return model
 
-def save_checkpoint(model, image_datasets, hidden_units, file_path="checkpoint.pth", dropout, epochs, lr):
+def save_checkpoint(model, image_datasets, hidden_units, dropout, epochs, lr, file_path="checkpoint.pth"):
     model.class_to_idx = image_datasets['train'].class_to_idx
     model.hidden_units = hidden_units
     model.dropout = dropout
