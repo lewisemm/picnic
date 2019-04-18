@@ -50,7 +50,7 @@ def create_dataloaders(data_dir):
 def get_supported_archs():
     return {
         "vgg16": (models.vgg16(pretrained=True), 25088),
-        # "vgg13": (models.vgg13(pretrained=True), 25088),
+        "vgg13": (models.vgg13(pretrained=True), 25088),
         "alexnet": (models.alexnet(pretrained=True), 9216)
     }
         
@@ -145,6 +145,8 @@ def train_model(model, gpu, dataloaders, lr=0.01, epochs=7):
     print_every = 40
     steps = 0
 
+    logs = open("train.logs", "w")
+
     for e in range(epochs):
         running_loss = 0
         for images, labels in dataloaders["train"]:
@@ -162,18 +164,25 @@ def train_model(model, gpu, dataloaders, lr=0.01, epochs=7):
 
             if steps % print_every == 0:
                 loss, accuracy = validator(model, dataloaders['valid'], criterion, gpu)
-                print(
-                    "Epoch: {}/{}... ".format(e+1, epochs),
-                    "Training Loss: {:.4f}".format(running_loss/print_every),
-                    "Validation Loss: {:.3f}.. ".format(loss/len(dataloaders['valid'])),
-                    "Validation Accuracy: {:.3f}".format(accuracy/len(dataloaders['valid']))
-                )
+                training_stats = {
+                    "epoch_info": "Epoch: {}/{}... ".format(e+1, epochs),
+                    "train_loss_info": "Training Loss: {:.4f}".format(running_loss/print_every),
+                    "val_loss_info": "Validation Loss: {:.3f}.. ".format(loss/len(dataloaders['valid'])),
+                    "val_acc_info": "Validation Accuracy: {:.3f}".format(accuracy/len(dataloaders['valid']))
+                }
+                log_info = "{epoch_info} {train_loss_info} {val_loss_info} {val_acc_info}".format(**training_stats)
+                print(log_info)
+                logs.write(log_info)
 
-            print("Iteration {} of epoch {}".format(steps, e+1))
+
+            iter_info = "Iteration {} of epoch {}".format(steps, e+1)
+            print(iter_info)
+            logs.write(iter_info)
 
             running_loss = 0
 
     print("Training Complete!")
+    logs.close()
     return model
 
 def resume_training(arch, checkpoint_filepath, additional_epochs, gpu, dataloaders):
