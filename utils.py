@@ -172,12 +172,12 @@ def train_model(model, gpu, dataloaders, lr=0.01, epochs=7):
                 }
                 log_info = "{epoch_info} {train_loss_info} {val_loss_info} {val_acc_info}".format(**training_stats)
                 print(log_info)
-                logs.write(log_info)
+                logs.write(log_info + "\n")
 
 
             iter_info = "Iteration {} of epoch {}".format(steps, e+1)
             print(iter_info)
-            logs.write(iter_info)
+            logs.write(iter_info + "\n")
 
             running_loss = 0
 
