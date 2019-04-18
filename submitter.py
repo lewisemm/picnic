@@ -42,4 +42,5 @@ for line in opened:
     try:
         sub.write(completed_line)
     except Exception:
-        sub.close()    
+        sub.close()
+sub.close()
